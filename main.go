@@ -13,15 +13,17 @@ import (
 )
 
 const (
-	LockTimeoutVar = "timeout"
-	LockTableVar   = "table"
-	LockKeyNameVar = "key"
-	LockNameVar    = "name"
+	LockTimeoutVar    = "timeout"
+	LockTableVar      = "table"
+	LockKeyNameVar    = "key"
+	LockNameVar       = "name"
+	LockIdentifierVar = "identifier"
 
-	DefaultLockTimeout = 30
-	DefaultLockTable   = "github-action-locks"
-	DefaultLockKeyName = "LockID"
-	DefaultLockName    = "testing"
+	DefaultLockTimeout    = 30
+	DefaultLockTable      = "github-action-locks"
+	DefaultLockKeyName    = "LockID"
+	DefaultLockName       = "testing"
+	DefaultLockIdentifier = ""
 )
 
 func lock() *cobra.Command {
@@ -33,11 +35,13 @@ func lock() *cobra.Command {
 			LockTable := viper.GetString(LockTableVar)
 			LockKeyName := viper.GetString(LockKeyNameVar)
 			LockName := viper.GetString(LockNameVar)
+			LockIdentifier := viper.GetString(LockIdentifierVar)
 
 			log.Printf("LockTimeout: %v", LockTimeout)
 			log.Printf("LockTable: %v", LockTable)
 			log.Printf("LockKeyName: %v", LockKeyName)
 			log.Printf("LockName: %v", LockName)
+			log.Printf("LockIdentifier: %v", LockIdentifier)
 
 			svc := dynamodb.New(session.Must(session.NewSession()))
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(LockTimeout)*time.Minute)
@@ -92,6 +96,9 @@ func lock() *cobra.Command {
 	cmd.PersistentFlags().String(LockNameVar, DefaultLockName, "The name of the DynamoDB table to create the lock in")
 	viper.BindPFlag(LockNameVar, cmd.PersistentFlags().Lookup(LockNameVar))
 
+	cmd.PersistentFlags().String(LockIdentifierVar, DefaultLockIdentifier, "The name of the DynamoDB table to create the lock in")
+	viper.BindPFlag(LockIdentifierVar, cmd.PersistentFlags().Lookup(LockIdentifierVar))
+
 	return cmd
 }
 
@@ -104,11 +111,13 @@ func unlock() *cobra.Command {
 			LockTable := viper.GetString(LockTableVar)
 			LockKeyName := viper.GetString(LockKeyNameVar)
 			LockName := viper.GetString(LockNameVar)
+			LockIdentifier := viper.GetString(LockIdentifierVar)
 
 			log.Printf("LockTimeout: %v", LockTimeout)
 			log.Printf("LockTable: %v", LockTable)
 			log.Printf("LockKeyName: %v", LockKeyName)
 			log.Printf("LockName: %v", LockName)
+			log.Printf("LockIdentifier: %v", LockIdentifier)
 
 			svc := dynamodb.New(session.Must(session.NewSession()))
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(LockTimeout)*time.Minute)
@@ -159,6 +168,9 @@ func unlock() *cobra.Command {
 
 	cmd.PersistentFlags().String(LockNameVar, DefaultLockName, "The name of the DynamoDB table to create the lock in")
 	viper.BindPFlag(LockNameVar, cmd.PersistentFlags().Lookup(LockNameVar))
+
+	cmd.PersistentFlags().String(LockIdentifierVar, DefaultLockIdentifier, "The name of the DynamoDB table to create the lock in")
+	viper.BindPFlag(LockIdentifierVar, cmd.PersistentFlags().Lookup(LockIdentifierVar))
 
 	return cmd
 }

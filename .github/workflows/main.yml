@@ -16,6 +16,7 @@ jobs:
       uses: ./
       with:
         timeout: "1"
-        name: "${{ github.run_id }}"
+        name: "${{ github.workflow }}"
+        identifier: "${{ github.run_id }}"
     - run: |
         sleep 60
