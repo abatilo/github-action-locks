@@ -16,6 +16,6 @@ jobs:
       uses: ./
       with:
         timeout: "1"
-        name: "action"
+        name: "${{ github.run_id }}"
     - run: |
         sleep 60
