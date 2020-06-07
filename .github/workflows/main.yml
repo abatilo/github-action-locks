@@ -18,17 +18,4 @@ jobs:
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
     - run: |
-        sleep 60
-  test2:
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - run: |
-        sleep 30
-    - name: Run lock
-      uses: ./
-      with:
-        name: "${{ github.workflow }}"
-        identifier: "${{ github.run_id }}"
+        sleep 120
