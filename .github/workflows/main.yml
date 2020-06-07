@@ -9,6 +9,8 @@ jobs:
   test:
     strategy:
       fail-fast: false
+      matrix:
+        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -18,7 +20,7 @@ jobs:
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
     - run: |
-        sleep 60
+        sleep 5
   test2:
     strategy:
       fail-fast: false
@@ -31,7 +33,7 @@ jobs:
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
     - run: |
-        sleep 60
+        sleep 5
   test3:
     strategy:
       fail-fast: false
@@ -44,7 +46,7 @@ jobs:
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
     - run: |
-        sleep 60
+        sleep 5
   test4:
     strategy:
       fail-fast: false
@@ -57,4 +59,4 @@ jobs:
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
     - run: |
-        sleep 60
+        sleep 5
