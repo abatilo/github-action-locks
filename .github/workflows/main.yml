@@ -9,56 +9,16 @@ jobs:
   test:
     strategy:
       fail-fast: false
-      matrix:
-        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: Run lock
       uses: ./
       with:
-        name: "${{ github.workflow }}"
+        timeout: "30"
+        table: "github-action-locks"
+        key: "LockID"
+        name: "${{ github.workflow }}" # Use the workflow name, in this case "Main" as the lock identifier
     - run: |
-        sleep 5
-  test2:
-    strategy:
-      fail-fast: false
-      matrix:
-        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Run lock
-      uses: ./
-      with:
-        name: "${{ github.workflow }}"
-    - run: |
-        sleep 5
-  test3:
-    strategy:
-      fail-fast: false
-      matrix:
-        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Run lock
-      uses: ./
-      with:
-        name: "${{ github.workflow }}"
-    - run: |
-        sleep 5
-  test4:
-    strategy:
-      fail-fast: false
-      matrix:
-        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Run lock
-      uses: ./
-      with:
-        name: "${{ github.workflow }}"
-    - run: |
+        echo "Do something that takes a long time here"
         sleep 5
