@@ -11,18 +11,18 @@ branding:
   color: "gray-dark"
 inputs:
   timeout:
-    description: "How long to wait before giving up on acquiring the lock, in minutes"
+    description: "How long to wait to acquire a lock, in minutes"
     required: false
     default: "30"
   table:
-    description: "The DynamoDB table to create the lock in"
+    description: "DynamoDB table to write the lock in"
     required: false
     default: "github-action-locks"
   key:
-    description: "The name of the column in the DynamoDB table to use for storing the lock name"
+    description: "Name of the column where we write locks"
     required: false
     default: "LockID"
   name:
-    description: "The name of lock to hold"
+    description: "Name of the lock"
     required: false
     default: "foobar"
