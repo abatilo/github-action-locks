@@ -25,8 +25,4 @@ inputs:
   name:
     description: "The name of lock to hold"
     required: false
-    default: "testing"
-  identifier:
-    description: "The action run_id to identify unique runs"
-    required: false
-    default: "testing"
+    default: "foobar"

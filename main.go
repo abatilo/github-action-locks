@@ -15,28 +15,23 @@ import (
 )
 
 const (
-	LockTimeoutVar    = "timeout"
-	LockTableVar      = "table"
-	LockKeyNameVar    = "key"
-	LockNameVar       = "name"
-	LockIdentifierVar = "identifier"
+	LockTimeoutVar = "timeout"
+	LockTableVar   = "table"
+	LockKeyNameVar = "key"
+	LockNameVar    = "name"
 
-	DefaultLockTimeout    = 30
-	DefaultLockTable      = "github-action-locks"
-	DefaultLockKeyName    = "LockID"
-	DefaultLockName       = "testing"
-	DefaultLockIdentifier = ""
+	DefaultLockTimeout = 30
+	DefaultLockTable   = "github-action-locks"
+	DefaultLockKeyName = "LockID"
+	DefaultLockName    = "foobar"
 )
 
-func createLock(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyName, lockName, lockIdentifier string) error {
+func createLock(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyName, lockName string) error {
 	_, err := svc.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String(lockTable),
 		Item: map[string]*dynamodb.AttributeValue{
 			lockKeyName: {
 				S: aws.String(lockName),
-			},
-			LockIdentifierVar: {
-				S: aws.String(lockIdentifier),
 			},
 		},
 		ConditionExpression: aws.String(fmt.Sprintf("attribute_not_exists(%s)", lockKeyName)),
@@ -53,13 +48,11 @@ func lock() *cobra.Command {
 			LockTable := viper.GetString(LockTableVar)
 			LockKeyName := viper.GetString(LockKeyNameVar)
 			LockName := viper.GetString(LockNameVar)
-			LockIdentifier := viper.GetString(LockIdentifierVar)
 
 			log.Printf("LockTimeout: %v", LockTimeout)
 			log.Printf("LockTable: %v", LockTable)
 			log.Printf("LockKeyName: %v", LockKeyName)
 			log.Printf("LockName: %v", LockName)
-			log.Printf("LockIdentifier: %v", LockIdentifier)
 
 			svc := dynamodb.New(session.Must(session.NewSession()))
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(LockTimeout)*time.Minute)
@@ -69,7 +62,7 @@ func lock() *cobra.Command {
 			log.Println("Acquiring lock")
 
 			for {
-				err := createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
+				err := createLock(ctx, svc, LockTable, LockKeyName, LockName)
 
 				if err != nil {
 					if aerr, ok := err.(awserr.Error); ok {
@@ -77,13 +70,16 @@ func lock() *cobra.Command {
 							log.Fatalf("Failed to create lock: %+v", err)
 						}
 					}
+				} else {
+					log.Printf("Lock acquired")
+					return
 				}
 
 				select {
 				case <-ctx.Done():
 					log.Fatal("Timed out waiting to acquire lock")
 				case <-time.After(5 * time.Second):
-					log.Print("Checking again")
+					log.Print("Failed to acquire lock, trying again")
 				}
 			}
 		},
@@ -101,9 +97,6 @@ func lock() *cobra.Command {
 	cmd.PersistentFlags().String(LockNameVar, DefaultLockName, "The name of the DynamoDB table to create the lock in")
 	viper.BindPFlag(LockNameVar, cmd.PersistentFlags().Lookup(LockNameVar))
 
-	cmd.PersistentFlags().String(LockIdentifierVar, DefaultLockIdentifier, "The name of the DynamoDB table to create the lock in")
-	viper.BindPFlag(LockIdentifierVar, cmd.PersistentFlags().Lookup(LockIdentifierVar))
-
 	return cmd
 }
 
@@ -116,13 +109,6 @@ func unlock() *cobra.Command {
 			LockTable := viper.GetString(LockTableVar)
 			LockKeyName := viper.GetString(LockKeyNameVar)
 			LockName := viper.GetString(LockNameVar)
-			LockIdentifier := viper.GetString(LockIdentifierVar)
-
-			log.Printf("LockTimeout: %v", LockTimeout)
-			log.Printf("LockTable: %v", LockTable)
-			log.Printf("LockKeyName: %v", LockKeyName)
-			log.Printf("LockName: %v", LockName)
-			log.Printf("LockIdentifier: %v", LockIdentifier)
 
 			svc := dynamodb.New(session.Must(session.NewSession()))
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(LockTimeout)*time.Minute)
@@ -139,14 +125,11 @@ func unlock() *cobra.Command {
 				},
 			})
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("Failed to get lock during unlock process: %+v", err)
 			}
 
-			if len(output.Item) == 0 {
-				log.Print("No lock exists to unlock")
-			} else {
+			if len(output.Item) != 0 {
 				log.Print("Releasing lock")
-
 				_, err := svc.DeleteItem(&dynamodb.DeleteItemInput{
 					TableName: aws.String(LockTable),
 					Key: map[string]*dynamodb.AttributeValue{
@@ -156,7 +139,7 @@ func unlock() *cobra.Command {
 					},
 				})
 				if err != nil {
-					log.Fatal(err)
+					log.Fatalf("Failed to delete lock: %+v", err)
 				}
 			}
 		},
@@ -173,10 +156,6 @@ func unlock() *cobra.Command {
 
 	cmd.PersistentFlags().String(LockNameVar, DefaultLockName, "The name of the DynamoDB table to create the lock in")
 	viper.BindPFlag(LockNameVar, cmd.PersistentFlags().Lookup(LockNameVar))
-
-	cmd.PersistentFlags().String(LockIdentifierVar, DefaultLockIdentifier, "The name of the DynamoDB table to create the lock in")
-	viper.BindPFlag(LockIdentifierVar, cmd.PersistentFlags().Lookup(LockIdentifierVar))
-
 	return cmd
 }
 
