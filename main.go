@@ -26,6 +26,38 @@ const (
 	DefaultLockIdentifier = ""
 )
 
+func lockExists(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyName, lockName string) bool {
+	output, err := svc.GetItemWithContext(ctx, &dynamodb.GetItemInput{
+		TableName:      aws.String(lockTable),
+		ConsistentRead: aws.Bool(true),
+		Key: map[string]*dynamodb.AttributeValue{
+			lockKeyName: {
+				S: aws.String(lockName),
+			},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return len(output.Item) != 0
+}
+
+func createLock(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyName, lockName, lockIdentifier string) error {
+	_, err := svc.PutItem(&dynamodb.PutItemInput{
+		TableName: aws.String(lockTable),
+		Item: map[string]*dynamodb.AttributeValue{
+			lockKeyName: {
+				S: aws.String(lockName),
+			},
+			LockIdentifierVar: {
+				S: aws.String(lockIdentifier),
+			},
+		},
+	})
+	return err
+}
+
 func lock() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "lock",
@@ -49,37 +81,28 @@ func lock() *cobra.Command {
 
 			// AcquireLock
 			log.Println("Acquiring lock")
-			output, err := svc.GetItemWithContext(ctx, &dynamodb.GetItemInput{
-				TableName:      aws.String(LockTable),
-				ConsistentRead: aws.Bool(true),
-				Key: map[string]*dynamodb.AttributeValue{
-					LockKeyName: {
-						S: aws.String(LockName),
-					},
-				},
-			})
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			if len(output.Item) == 0 {
+			if !lockExists(ctx, svc, LockTable, LockKeyName, LockName) {
 				log.Print("No lock exists, creating")
+				createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
+			} else {
+				log.Print("Lock already exists, waiting to try again")
+				exists := true
 
-				output, err := svc.PutItem(&dynamodb.PutItemInput{
-					TableName: aws.String(LockTable),
-					Item: map[string]*dynamodb.AttributeValue{
-						LockKeyName: {
-							S: aws.String(LockName),
-						},
-					},
-				})
-				if err != nil {
-					log.Fatal(err)
+				for exists {
+					select {
+					case <-ctx.Done():
+						log.Print("Timed out waiting")
+						return
+					case <-time.After(5 * time.Second):
+						log.Print("Checking again")
+						exists = lockExists(ctx, svc, LockTable, LockKeyName, LockName)
+					}
 				}
 
-				log.Printf("%+v", output)
-			} else {
-				log.Print("Lock was already acquired, exiting")
+				if !exists {
+					log.Print("Acquired lock")
+					createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
+				}
 			}
 		},
 	}

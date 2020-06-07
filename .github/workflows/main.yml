@@ -20,3 +20,17 @@ jobs:
         identifier: "${{ github.run_id }}"
     - run: |
         sleep 60
+  test2:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Run lock
+      uses: ./
+      with:
+        timeout: "1"
+        name: "${{ github.workflow }}"
+        identifier: "${{ github.run_id }}"
+    - run: |
+        sleep 60
