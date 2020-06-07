@@ -15,7 +15,8 @@ jobs:
     - name: Run lock
       uses: ./
       with:
-        name: ${{ env.GITHUB_RUN_ID }}
+        timeout: "1"
+        name: "action"
     - run: |
         env
         echo $GITHUB_RUN_ID
