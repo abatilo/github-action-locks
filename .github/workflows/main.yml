@@ -14,5 +14,9 @@ jobs:
     - uses: actions/checkout@master
     - name: Run lock
       uses: ./
+      with:
+        name: ${{ env.GITHUB_RUN_ID }}
     - run: |
         env
+        echo $GITHUB_RUN_ID
+        echo $GITHUB_WORKFLOW

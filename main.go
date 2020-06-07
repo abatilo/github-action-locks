@@ -34,6 +34,11 @@ func lock() *cobra.Command {
 			LockKeyName := viper.GetString(LockKeyNameVar)
 			LockName := viper.GetString(LockNameVar)
 
+			log.Printf("LockTimeout: %v", LockTimeout)
+			log.Printf("LockTable: %v", LockTable)
+			log.Printf("LockKeyName: %v", LockKeyName)
+			log.Printf("LockName: %v", LockName)
+
 			svc := dynamodb.New(session.Must(session.NewSession()))
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(LockTimeout)*time.Minute)
 			defer cancel()
@@ -99,6 +104,11 @@ func unlock() *cobra.Command {
 			LockTable := viper.GetString(LockTableVar)
 			LockKeyName := viper.GetString(LockKeyNameVar)
 			LockName := viper.GetString(LockNameVar)
+
+			log.Printf("LockTimeout: %v", LockTimeout)
+			log.Printf("LockTable: %v", LockTable)
+			log.Printf("LockKeyName: %v", LockKeyName)
+			log.Printf("LockName: %v", LockName)
 
 			svc := dynamodb.New(session.Must(session.NewSession()))
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(LockTimeout)*time.Minute)
