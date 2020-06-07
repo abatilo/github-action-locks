@@ -18,6 +18,4 @@ jobs:
         timeout: "1"
         name: "action"
     - run: |
-        env
-        echo $GITHUB_RUN_ID
-        echo $GITHUB_WORKFLOW
+        sleep 60
