@@ -18,4 +18,4 @@ jobs:
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
     - run: |
-        sleep 120
+        sleep 121
