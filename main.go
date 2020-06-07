@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -54,6 +55,7 @@ func createLock(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyN
 				S: aws.String(lockIdentifier),
 			},
 		},
+		ConditionExpression: aws.String(fmt.Sprintf("attribute_not_exists(%s)", lockKeyName)),
 	})
 	return err
 }
@@ -83,7 +85,10 @@ func lock() *cobra.Command {
 			log.Println("Acquiring lock")
 			if !lockExists(ctx, svc, LockTable, LockKeyName, LockName) {
 				log.Print("No lock exists, creating")
-				createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
+				err := createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
+				if err != nil {
+					log.Fatal("Failed to create lock")
+				}
 			} else {
 				log.Print("Lock already exists, waiting to try again")
 				exists := true
