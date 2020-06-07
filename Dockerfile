@@ -10,7 +10,7 @@ WORKDIR /go/src/github.com/abatilo/github-action-locks
 COPY ./main.go ./main.go
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/github-action-locks main.go
 
-FROM scratch
+FROM alpine:3
 # SSL Certs
 COPY --from=backend /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
