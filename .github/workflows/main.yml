@@ -15,7 +15,6 @@ jobs:
     - name: Run lock
       uses: ./
       with:
-        timeout: "1"
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
     - run: |
@@ -26,11 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - run: |
+        sleep 30
     - name: Run lock
       uses: ./
       with:
-        timeout: "1"
         name: "${{ github.workflow }}"
         identifier: "${{ github.run_id }}"
-    - run: |
-        sleep 60
