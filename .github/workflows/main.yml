@@ -15,8 +15,7 @@ jobs:
     - name: Run lock
       uses: ./
       with:
-        args:
-          name: ${{ env.GITHUB_RUN_ID }}
+        name: ${{ env.GITHUB_RUN_ID }}
     - run: |
         env
         echo $GITHUB_RUN_ID
