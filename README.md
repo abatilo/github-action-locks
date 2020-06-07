@@ -101,7 +101,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Create lock
-      uses: abatilo/github-action-locks@v1
+      uses: docker://abatilo/github-action-locks@v1
       with:
         timeout: "30"
         table: "github-action-locks"
