@@ -4,15 +4,16 @@
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=abatilo/github-action-locks)](https://dependabot.com)
 [![license](https://img.shields.io/github/license/abatilo/github-action-locks.svg)](https://github.com/abatilo/github-action-locks/blob/master/LICENSE)
 
-Guarantee sequential execution of your GitHub Action workflows. Why would you want to do that, you might ask?
+Guarantee atomic execution of your GitHub Action workflows. Why would you want
+to do that, you might ask?
 
 The reason I built this GitHub Action is specifically because [Pulumi doesn't
 support locking remote state](https://github.com/pulumi/pulumi/pull/2697)
 unless you use their SaaS offering. I deploy various bits of infrastructure
 using the [Official Pulumi GitHub
 Actions](https://www.pulumi.com/docs/guides/continuous-delivery/github-actions/)
-and I want to be able to fearlessly merge code and watch as the changes get
-queued up without interfering with each other.
+and I want to be able to fearlessly merge code and watch as the updates are
+pushed one at a time.
 
 ## Getting started
 
