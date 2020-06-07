@@ -24,6 +24,8 @@ jobs:
   test2:
     strategy:
       fail-fast: false
+      matrix:
+        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -37,6 +39,8 @@ jobs:
   test3:
     strategy:
       fail-fast: false
+      matrix:
+        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -50,6 +54,8 @@ jobs:
   test4:
     strategy:
       fail-fast: false
+      matrix:
+        num: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master

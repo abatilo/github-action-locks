@@ -57,8 +57,7 @@ func createLock(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyN
 		},
 		ConditionExpression: aws.String(fmt.Sprintf("attribute_not_exists(%s)", lockKeyName)),
 	})
-	// return err
-	return fmt.Errorf("Testing failure and if post still runs")
+	return err
 }
 
 func lock() *cobra.Command {
@@ -88,7 +87,7 @@ func lock() *cobra.Command {
 				log.Print("No lock exists, creating")
 				err := createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
 				if err != nil {
-					log.Fatal("Failed to create lock")
+					log.Fatalf("Failed to create lock: %+v", err)
 				}
 			} else {
 				log.Print("Lock already exists, waiting to try again")
