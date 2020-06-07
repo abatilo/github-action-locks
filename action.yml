@@ -4,8 +4,8 @@ description: "An action to lock the concurrent executions of your Actions"
 runs:
   using: "docker"
   image: "Dockerfile"
-  entrypoint: "github-action-locks lock"
-  post-entrypoint: "github-action-locks unlock"
+  entrypoint: "lock.sh"
+  post-entrypoint: "unlock.sh"
 branding:
   icon: "lock"
   color: "gray-dark"

@@ -16,6 +16,4 @@ COPY --from=backend /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy our static executable
 COPY --from=backend /go/bin/github-action-locks /go/bin/github-action-locks
-
-# Run the hello binary.
-ENTRYPOINT ["/go/bin/github-action-locks"]
+COPY entrypoint.sh /entrypoint.sh
