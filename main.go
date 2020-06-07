@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/spf13/cobra"
@@ -26,23 +27,6 @@ const (
 	DefaultLockName       = "testing"
 	DefaultLockIdentifier = ""
 )
-
-func lockExists(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyName, lockName string) bool {
-	output, err := svc.GetItemWithContext(ctx, &dynamodb.GetItemInput{
-		TableName:      aws.String(lockTable),
-		ConsistentRead: aws.Bool(true),
-		Key: map[string]*dynamodb.AttributeValue{
-			lockKeyName: {
-				S: aws.String(lockName),
-			},
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return len(output.Item) != 0
-}
 
 func createLock(ctx context.Context, svc *dynamodb.DynamoDB, lockTable, lockKeyName, lockName, lockIdentifier string) error {
 	_, err := svc.PutItem(&dynamodb.PutItemInput{
@@ -83,30 +67,23 @@ func lock() *cobra.Command {
 
 			// AcquireLock
 			log.Println("Acquiring lock")
-			if !lockExists(ctx, svc, LockTable, LockKeyName, LockName) {
-				log.Print("No lock exists, creating")
-				err := createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
-				if err != nil {
-					log.Fatalf("Failed to create lock: %+v", err)
-				}
-			} else {
-				log.Print("Lock already exists, waiting to try again")
-				exists := true
 
-				for exists {
-					select {
-					case <-ctx.Done():
-						log.Print("Timed out waiting")
-						return
-					case <-time.After(5 * time.Second):
-						log.Print("Checking again")
-						exists = lockExists(ctx, svc, LockTable, LockKeyName, LockName)
+			for {
+				err := createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
+
+				if err != nil {
+					if aerr, ok := err.(awserr.Error); ok {
+						if aerr.Code() != dynamodb.ErrCodeConditionalCheckFailedException {
+							log.Fatalf("Failed to create lock: %+v", err)
+						}
 					}
 				}
 
-				if !exists {
-					log.Print("Acquired lock")
-					createLock(ctx, svc, LockTable, LockKeyName, LockName, LockIdentifier)
+				select {
+				case <-ctx.Done():
+					log.Fatal("Timed out waiting to acquire lock")
+				case <-time.After(5 * time.Second):
+					log.Print("Checking again")
 				}
 			}
 		},
