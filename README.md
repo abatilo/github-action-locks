@@ -1,7 +1,6 @@
 # github-action-locks
 
 [![Main](https://github.com/abatilo/github-action-locks/workflows/Main/badge.svg)](https://github.com/abatilo/github-action-locks/actions?query=workflow%3AMain)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=abatilo/github-action-locks)](https://dependabot.com)
 [![license](https://img.shields.io/github/license/abatilo/github-action-locks.svg)](https://github.com/abatilo/github-action-locks/blob/master/LICENSE)
 
 Guarantee atomic execution of your GitHub Action workflows. Why would you want
