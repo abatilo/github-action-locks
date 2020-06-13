@@ -3,12 +3,12 @@ FROM golang:1.14-alpine as backend
 # Install dependencies
 WORKDIR /go/src/github.com/abatilo/github-action-locks
 COPY ./go.mod ./go.sum ./
-RUN go mod download
+COPY ./vendor ./vendor
 
 # Build artifacts
 WORKDIR /go/src/github.com/abatilo/github-action-locks
 COPY ./main.go ./main.go
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/github-action-locks main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -ldflags="-w -s" -o /go/bin/github-action-locks main.go
 
 FROM alpine:3
 # SSL Certs
