@@ -85,15 +85,6 @@ This workflow uses the workflow name as the identifier for the lock. You can
 use any value you want here to synchronize Actions within the same repo,
 workflows with multiple parallel jobs, or even Actions across repositories.
 
-**Note:** This example is pulling the image as its been built and pushed to
-DockerHub. Notice the `uses: docker://abatilo/github-action-locks:v1`. You
-could use `abatilo/github-action-locks@v1` to download and build the action
-from the GitHub Marketplace, but if you use the pre-built and published
-container, creating the lock is near instant as the final container contains
-nothing but the statically compiled Go binary. This download only takes 1-2
-seconds as opposed to having to rebuild this Action on every execution, which
-would involve downloading dependencies and building the binary.
-
 ```yaml
 name: Main
 on: [push, pull_request]
@@ -110,7 +101,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Create lock
-      uses: docker://abatilo/github-action-locks:v1
+      uses: abatilo/github-action-locks@v1
       with:
         timeout: "30"
         table: "github-action-locks"
