@@ -3,6 +3,8 @@
 [![Main](https://github.com/abatilo/github-action-locks/workflows/Main/badge.svg)](https://github.com/abatilo/github-action-locks/actions?query=workflow%3AMain)
 [![license](https://img.shields.io/github/license/abatilo/github-action-locks.svg)](https://github.com/abatilo/github-action-locks/blob/master/LICENSE)
 
+**[As of April 19, 2021, GitHub now natively supports this feature](https://github.blog/changelog/2021-04-19-github-actions-limit-workflow-run-or-job-concurrency/)**
+
 Guarantee atomic execution of your GitHub Action workflows. Why would you want
 to do that, you might ask?
 
