@@ -44,11 +44,11 @@ func lock() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "lock",
 		Short: "Create a lock",
-		Run: func(_ *cobra.Command, _ []string) {
+		Run: func(cmd *cobra.Command, _ []string) {
 			LockTimeout := viper.GetInt(LockTimeoutVar)
-			LockTable := viper.GetString(LockTableVar)
-			LockKeyName := viper.GetString(LockKeyNameVar)
-			LockName := viper.GetString(LockNameVar)
+			LockTable, _ := cmd.Flags().GetString(LockTableVar)
+			LockKeyName, _ := cmd.Flags().GetString(LockKeyNameVar)
+			LockName, _ := cmd.Flags().GetString(LockNameVar)
 
 			log.Print("Creating lock with the following parameters:")
 			log.Printf("LockTimeout: %v", LockTimeout)
@@ -104,7 +104,6 @@ func lock() *cobra.Command {
 
 	cmd.PersistentFlags().String(LockNameVar, DefaultLockName, "Name of the lock")
 	viper.BindPFlag(LockNameVar, cmd.PersistentFlags().Lookup(LockNameVar))
-
 	return cmd
 }
 
@@ -112,10 +111,10 @@ func unlock() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "unlock",
 		Short: "Release a lock",
-		Run: func(_ *cobra.Command, _ []string) {
-			LockTable := viper.GetString(LockTableVar)
-			LockKeyName := viper.GetString(LockKeyNameVar)
-			LockName := viper.GetString(LockNameVar)
+		Run: func(cmd *cobra.Command, _ []string) {
+			LockTable, _ := cmd.Flags().GetString(LockTableVar)
+			LockKeyName, _ := cmd.Flags().GetString(LockKeyNameVar)
+			LockName, _ := cmd.Flags().GetString(LockNameVar)
 
 			svc := dynamodb.New(session.Must(session.NewSession()))
 
@@ -171,6 +170,9 @@ func main() {
 	viper.SetEnvPrefix("INPUT")
 	viper.AutomaticEnv()
 
+	rootCmd.Flags().String(LockTableVar, "", "DynamoDB table to write the lock in")
+	rootCmd.Flags().String(LockKeyNameVar, "", "Name of the column where we write locks")
+	rootCmd.Flags().String(LockNameVar, "", "Name of the lock")
 	rootCmd.AddCommand(lock())
 	rootCmd.AddCommand(unlock())
 	rootCmd.Execute()
